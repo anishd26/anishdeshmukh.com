@@ -1,0 +1,33 @@
+---
+const { project } = Astro.props;
+const { name, year, description, tags = [], website, source, image } = project;
+const initials = name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+// The whole card links to the website if present, otherwise the source.
+const cardHref = website || source || null;
+const Tag = cardHref ? 'a' : 'div';
+---
+
+<Tag
+  class="proj"
+  {...(cardHref ? { href: cardHref, target: '_blank', rel: 'noopener' } : {})}
+>
+  {image
+    ? <img class="thumb" src={image} alt={name} loading="lazy" />
+    : <div class="thumb-fallback">{initials}</div>}
+  <div class="body">
+    <div class="row">
+      <h3>{name}</h3>
+      {year && <span class="year">{year}</span>}
+    </div>
+    <p>{description}</p>
+    {tags.length > 0 && (
+      <div class="tags">{tags.map((t) => <span class="tag">{t}</span>)}</div>
+    )}
+    {(website || source) && (
+      <div class="proj-links">
+        {website && <span>Website ↗</span>}
+        {source && <span>Source ↗</span>}
+      </div>
+    )}
+  </div>
+</Tag>

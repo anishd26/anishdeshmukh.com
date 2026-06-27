@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { projects } from '../data/projects.js';
+---
+
+<BaseLayout title="Projects" description="Projects by Anish Deshmukh.">
+  <section class="section">
+    <h1>Projects</h1>
+    <p class="muted">Things I've built. Click a card to take a look.</p>
+    <div class="cards two" style="margin-top: 26px;">
+      {projects.map((p) => <ProjectCard project={p} />)}
+    </div>
+  </section>
+</BaseLayout>

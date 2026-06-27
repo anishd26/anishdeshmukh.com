@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+import { profile, about, skills, socials } from '../data/site.js';
+import { projects } from '../data/projects.js';
+import { publications, scholarUrl } from '../data/publications.js';
+
+const featured = projects.filter((p) => p.featured).slice(0, 3);
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 2);
+
+const fmt = (d) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+---
+
+<BaseLayout>
+  <!-- Hero / About -->
+  <section class="hero section">
+    <div class="hero-top">
+      <div class="avatar">{profile.initials}</div>
+      <div>
+        <h1 style="margin-bottom:.1em;">Hi, I'm {profile.name.split(' ')[0]}</h1>
+        {profile.available && (
+          <span class="badge"><span class="dot"></span>{profile.availableText}</span>
+        )}
+      </div>
+    </div>
+    <p class="lead" set:html={about}></p>
+  </section>
+
+  <!-- Skills -->
+  <section class="section">
+    <div class="section-head"><h2>Skills</h2></div>
+    <div class="pills">
+      {skills.map((s) => <span class="pill">{s}</span>)}
+    </div>
+  </section>
+
+  <!-- Featured projects -->
+  {featured.length > 0 && (
+    <section class="section">
+      <div class="section-head">
+        <h2>Selected Projects</h2>
+        <a href="/projects">View all →</a>
+      </div>
+      <div class="cards two">
+        {featured.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </section>
+  )}
+
+  <!-- Publications -->
+  {publications.length > 0 && (
+    <section class="section">
+      <div class="section-head">
+        <h2>Publications</h2>
+        {scholarUrl && <a href={scholarUrl} target="_blank" rel="noopener">Google Scholar →</a>}
+      </div>
+      {publications.map((pub) => (
+        <article class="pub">
+          <h3>{pub.title}</h3>
+          <p class="authors">{pub.authors}</p>
+          {pub.venue && <p class="venue">{pub.venue}</p>}
+          {pub.note && <p class="note">{pub.note}</p>}
+          {pub.link && <a class="pub-link" href={pub.link} target="_blank" rel="noopener">Access paper ↗</a>}
+        </article>
+      ))}
+    </section>
+  )}
+
+  <!-- Recent writing -->
+  {posts.length > 0 && (
+    <section class="section">
+      <div class="section-head">
+        <h2>Writing</h2>
+        <a href="/blog">All posts →</a>
+      </div>
+      <ul class="post-list">
+        {posts.map((post) => (
+          <li>
+            <div class="date">{fmt(post.data.pubDate)}</div>
+            <a href={`/blog/${post.id}`}>{post.data.title}</a>
+            {post.data.description && <p>{post.data.description}</p>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <!-- Contact -->
+  <section class="section" id="contact">
+    <div class="section-head"><h2>Get in Touch</h2></div>
+    <p class="muted">The best way to reach me is by email. I'm also on the platforms below.</p>
+    <div class="contact-links">
+      {socials.map((s) => (
+        <a href={s.href} target={s.href.startsWith('mailto') ? undefined : '_blank'} rel="noopener">{s.label}</a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
